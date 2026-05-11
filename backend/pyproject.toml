@@ -3,7 +3,7 @@ name = "vega-backend"
 version = "0.1.0"
 description = "Vega backend, FastAPI service for the Black Scholes options pricer."
 authors = [
-    { name = "Mustafan4x", email = "Mustafa421670@gmail.com" }
+    { name = "Mustafa Nazeer", email = "Mustafa.nazeer06@gmail.com" }
 ]
 requires-python = ">=3.12"
 dependencies = [
