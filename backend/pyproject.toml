@@ -9,9 +9,9 @@ requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.18.4",
     "fastapi>=0.136.1",
-    "numpy>=2.4.4",
+    "numpy>=2.4.5",
     "psycopg[binary]>=3.3.4",
-    "pydantic>=2.13.3",
+    "pydantic>=2.13.4",
     "pyjwt[crypto]>=2.10",
     "slowapi>=0.1.9",
     "sqlalchemy>=2.0",
@@ -75,5 +75,5 @@ dev = [
     "httpx>=0.28.1",
     "mypy>=1.20.2",
     "pytest>=9.0.3",
-    "ruff>=0.15.12",
+    "ruff>=0.15.13",
 ]
