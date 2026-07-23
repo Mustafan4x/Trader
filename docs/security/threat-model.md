@@ -39,7 +39,7 @@ The system has **no end user authentication in v1** (see "Accepted residual risk
 
 ## Assets
 
-A. **Source code** (the GitHub repo `Mustafan4x/Vega`): the integrity of the code, branch history, and CI configuration.
+A. **Source code** (the GitHub repo `MustafaNazeer/Vega`): the integrity of the code, branch history, and CI configuration.
 B. **Production secrets**: `DATABASE_URL` (Neon DSN), `SENTRY_DSN`, plus any future API keys. Compromise of `DATABASE_URL` gives full read/write to the Neon DB.
 C. **Postgres database** (Neon): pricing inputs and outputs the user has saved. Not personally identifiable, not commercially sensitive, but loss of integrity would invalidate the History feature.
 D. **Backend service** (Render): availability and integrity of the FastAPI process; it is the only path between frontend and database.
@@ -365,7 +365,7 @@ The user (Mustafa) must perform these GitHub click ops by hand. They cannot be d
 
 ### Branch protection on `main`
 
-1. Go to https://github.com/Mustafan4x/Vega/settings/branches.
+1. Go to https://github.com/MustafaNazeer/Vega/settings/branches.
 2. Click **Add branch ruleset** (or **Add rule**, depending on which UI variant is current).
 3. Set **Branch name pattern** to `main`.
 4. Enable the following toggles:
@@ -384,7 +384,7 @@ The user (Mustafa) must perform these GitHub click ops by hand. They cannot be d
 
 ### Dependabot for pip and pnpm
 
-1. Go to https://github.com/Mustafan4x/Vega/settings/security_analysis.
+1. Go to https://github.com/MustafaNazeer/Vega/settings/security_analysis.
 2. Under **Dependabot**:
    * Enable **Dependabot alerts**.
    * Enable **Dependabot security updates**.
@@ -393,7 +393,7 @@ The user (Mustafa) must perform these GitHub click ops by hand. They cannot be d
 
 ### CodeQL for Python and JavaScript/TypeScript
 
-1. Go to https://github.com/Mustafan4x/Vega/settings/security_analysis.
+1. Go to https://github.com/MustafaNazeer/Vega/settings/security_analysis.
 2. Under **Code scanning**, click **Set up** next to **CodeQL analysis**.
 3. Choose **Default** setup. GitHub will auto detect Python and JavaScript/TypeScript and run the standard query suites.
 4. If the **Default** option is not available (some org settings disable it), choose **Advanced** and accept the auto generated `.github/workflows/codeql.yml`. Verify the languages list contains both `python` and `javascript-typescript`.

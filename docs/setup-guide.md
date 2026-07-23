@@ -12,7 +12,7 @@ All three services have free tiers that cover this project comfortably.
 
 ## Accounts you will need
 
-1. **GitHub**: <https://github.com/Mustafan4x/Vega> (already created).
+1. **GitHub**: <https://github.com/MustafaNazeer/Vega> (already created).
 2. **Cloudflare**: <https://dash.cloudflare.com/sign-up>.
 3. **Render**: <https://render.com/>.
 4. **Neon**: <https://neon.tech/>.
@@ -93,7 +93,7 @@ The owner DSN never leaves your local shell history. The `vega_app` DSN goes to 
 ### Step 2. Backend (Render)
 
 1. Sign in to <https://dashboard.render.com/>.
-2. **Connect GitHub**: top right, "New" -> "Blueprint", connect the `Mustafan4x/Vega` repo. Render reads `/render.yaml` from the repo root.
+2. **Connect GitHub**: top right, "New" -> "Blueprint", connect the `MustafaNazeer/Vega` repo. Render reads `/render.yaml` from the repo root.
 3. Render will offer to create a service named `vega-backend` (Docker, free plan, Oregon). Accept.
 4. **Set the env vars** Render flagged as `sync: false` (these are not in `render.yaml`):
    * `VEGA_CORS_ORIGINS`: paste the eventual Cloudflare Pages URL. You do not have it yet, so leave a placeholder like `https://placeholder.pages.dev`. We come back here at the end.
@@ -110,7 +110,7 @@ The owner DSN never leaves your local shell history. The `vega_app` DSN goes to 
 ### Step 3. Frontend (Cloudflare Pages)
 
 1. Sign in to <https://dash.cloudflare.com/>.
-2. **Pages** -> **Create application** -> **Connect to Git**. Authorize Cloudflare to read the `Mustafan4x/Vega` repo.
+2. **Pages** -> **Create application** -> **Connect to Git**. Authorize Cloudflare to read the `MustafaNazeer/Vega` repo.
 3. Build settings:
    * Framework preset: `None` (we want explicit control).
    * Build command: `pnpm install --frozen-lockfile && pnpm build`
@@ -153,7 +153,7 @@ The owner DSN never leaves your local shell history. The `vega_app` DSN goes to 
 
 ## Branch protection (recommended after first deploy)
 
-Apply on GitHub at <https://github.com/Mustafan4x/Vega/settings/branches>:
+Apply on GitHub at <https://github.com/MustafaNazeer/Vega/settings/branches>:
 
 * Require a pull request before merging to `main`.
 * Require at least one approving review.

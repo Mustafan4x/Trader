@@ -15,7 +15,7 @@ services:
   - type: web
     name: vega-backend
     runtime: docker
-    repo: https://github.com/Mustafan4x/Vega
+    repo: https://github.com/MustafaNazeer/Vega
     branch: main
     rootDir: backend
     dockerfilePath: ./Dockerfile
