@@ -1,8 +1,8 @@
 # Vega · Oxblood wireframes
 
-This document describes the layout and interaction model for each of the five screens in the Vega app. The canonical visual ground truth is `/home/mustafa/src/vega/docs/design/claude-design-output.html`. This file is a written description of what already exists there, anchored to the `data-component` and `data-element` selectors used in the HTML.
+This document describes the layout and interaction model for each of the five screens in the Vega app. It is anchored to the `data-component` and `data-element` selectors the React components carry, so a description here maps directly onto a node in the running app.
 
-When the Frontend Developer scaffolds React components in Phase 3, they should match these `data-component` names and `data-element` parts so the canonical HTML remains useful as a reference.
+React components match these `data-component` names and `data-element` parts, so this document stays a usable map of the implementation.
 
 ## Global app shell
 
@@ -123,7 +123,7 @@ Two side by side cards: `[data-component="HeatMap"]` (Call) and `[data-component
 
 ## Heat map color scale spec
 
-This is the unambiguous color rule for both modes. The Frontend Developer must implement the React heat map with these exact RGB triples and the same midpoint rule as the canonical HTML.
+This is the unambiguous color rule for both modes. The React heat map uses these exact RGB triples and this midpoint rule.
 
 ### Value mode (5 stop, min to max)
 
@@ -170,9 +170,9 @@ else:        stops = stopsPos, t = tn       // 0..1 across stopsPos
 | 3 | 0.67 | `(34, 197, 94)` | `#22C55E` | Gain |
 | 4 | 1.00 | `(21, 128, 61)` | `#157A3D` | Deepest gain (dark green) |
 
-### Notes for the Frontend Developer
+### Notes on the heat map palette
 
-* These color stops are the canonical values used inside the canvas painter in `claude-design-output.html` (function `HeatMap`, constants `stopsValue`, `stopsNeg`, `stopsPos`). They do not match the Tailwind primary or accent palette on purpose: the heat map uses a perceptually balanced diverging scale rather than the brand palette, which would muddy the gradient and confuse value vs P&L states.
+* These color stops are the canonical values used inside the canvas painter (see `frontend/src/lib/heatMapColors.ts`). They do not match the Tailwind primary or accent palette on purpose: the heat map uses a perceptually balanced diverging scale rather than the brand palette, which would muddy the gradient and confuse value vs P&L states.
 * When porting to React, keep the bilinear interpolation in pixel space (240x240 image data) so a 5x5 grid still produces a smooth fill rather than visible cells; the overlaid hit grid handles cell hover.
 * Provide a separate hex constant in the React module so it can be unit tested. Suggested location: `frontend/src/lib/heatMapColors.ts`.
 * The legend element is not yet implemented; if added, it should sit at `[data-component="HeatMap"] [data-element="legend"]` per the glossary.
@@ -279,10 +279,10 @@ URL state: `active === 'history'`.
 
 ## Design decisions (resolved with the user 2026-05-02)
 
-The five questions raised during extraction were resolved with the user during the Phase 0 check-in. Frontend Developer should treat the answers below as authoritative starting in Phase 3.
+Five open questions were raised while the tokens were extracted. They were resolved during Phase 0, and the answers below are authoritative from Phase 3 onwards.
 
 1. **Heat map legend.** Ship a legend in v1. Add `[data-component="HeatMap"] [data-element="legend"]` showing the active color stops, sized to fit beside the heat map without crowding the cells.
-2. **Light theme.** Light theme **is in scope for v1**. The Top bar moon icon is a working theme toggle, not a placeholder. The toggle persists the user's choice (localStorage). The canonical HTML is dark only, so a light variant of the Oxblood palette must be produced before Phase 3 starts; the production approach (Claude Design round trip versus deriving from the existing tokens) is a Phase 3 prep decision.
+2. **Light theme.** Light theme **is in scope for v1**. The Top bar moon icon is a working theme toggle, not a placeholder. The toggle persists the user's choice (localStorage). The Oxblood palette is dark only, so a light variant must be produced before Phase 3 starts; whether it is derived from the existing tokens or designed fresh is a Phase 3 prep decision.
 3. **Model selector interactivity.** Always show all three models (Black Scholes, binomial, Monte Carlo) side by side. No hide/show toggle in v1.
 4. **History row action icon.** Keep the reload icon as is. Both the icon and the row click target remain valid entry points; intentional redundancy.
 5. **Backtest "Run" button semantics.** Run is an explicit trigger. The chart is empty until the user clicks Run; reactive recomputation on input change is dropped from the v1 spec.

@@ -1,8 +1,8 @@
 /**
  * Application shell: sidebar nav, sticky top bar, and a content slot.
- * Component anatomy mirrors the canonical reference at
- * ``docs/design/claude-design-output.html`` so designers can map between
- * the two by selector.
+ * Component anatomy follows the shell section of
+ * ``docs/design/wireframes.md``, keyed by the same selectors so the
+ * document and the implementation map onto each other.
  */
 
 import type { ReactNode } from 'react'

@@ -1,6 +1,6 @@
 # Threat model: Vega (Black Scholes options pricer)
 
-Owner: Security Engineer agent.
+Owner: security review.
 Last updated: 2026-05-02 (Phase 0).
 Scope: every layer this project will ship across the 11 phases described in `SPEC.md`. This document is the canonical security view of the system. It is reviewed and updated at every phase boundary, and at every PR that touches authn, secrets, third party services, or user input.
 
@@ -14,7 +14,7 @@ Conventions used below:
 * **Threat**: a way the asset could be harmed.
 * **Control**: the engineering or process measure that mitigates the threat.
 * **Residual risk**: what is left after the control is applied.
-* **Owner**: the agent role responsible for keeping the control healthy.
+* **Owner**: the area responsible for keeping the control healthy.
 
 ## System overview
 
@@ -24,7 +24,7 @@ The deployed v1 system has three runtime tiers:
 2. **Backend**: a FastAPI service hosted on Render. Pure JSON over HTTPS. Endpoints: pricing (Phase 2), heat map (Phase 4), persistence write and history read (Phase 6), Greeks (Phase 7), market data lookup (Phase 8), backtest (Phase 10), `/health`.
 3. **Database**: managed Postgres on Neon (production), SQLite (local dev). Accessed only by the backend over a TLS connection string.
 
-The system has **no end user authentication in v1** (see "Accepted residual risks" below). The only third party data source is `yfinance` (Phase 8 onward). Optional: Sentry for error tracking (Observability Engineer's call).
+The system has **no end user authentication in v1** (see "Accepted residual risks" below). The only third party data source is `yfinance` (Phase 8 onward). Optional: Sentry for error tracking (optional).
 
 ## Trust boundaries
 
@@ -55,14 +55,14 @@ G. **Reputation**: the project is linked from a resume. Visible compromise (defa
 
 **Controls**:
 
-* SQLAlchemy 2.x ORM with parameterized queries only. Manual string concatenation of SQL is banned. The Code Reviewer rejects any PR that uses `text("...")` with f strings.
+* SQLAlchemy 2.x ORM with parameterized queries only. Manual string concatenation of SQL is banned. Code review rejects any PR that uses `text("...")` with f strings.
 * `bandit` rule `B608` (hardcoded sql with string formatting) runs on every PR.
 * `semgrep` ruleset `p/sqlalchemy` runs on every PR.
 * DB user has no DDL privilege in production (no `CREATE`, `ALTER`, `DROP`). Migrations run with a separate higher privilege role only during deploy.
 
 **Residual risk**: ORM bypass via ad hoc raw SQL added in a hotfix. Caught by code review and `bandit`/`semgrep`.
 
-**Owner**: Backend Developer (code), Security Engineer (review).
+**Owner**: backend (code), security review (review).
 
 ### T2. Command injection
 
@@ -72,11 +72,11 @@ G. **Reputation**: the project is linked from a resume. Visible compromise (defa
 
 * `subprocess` calls always use list form arguments, never `shell=True`.
 * `bandit` rule `B602` (subprocess shell true) runs on every PR.
-* No user input is ever interpolated into shell commands. If a future feature needs this, it must be reviewed by the Security Engineer and use `shlex.quote` plus an explicit allow list.
+* No user input is ever interpolated into shell commands. If a future feature needs this, it must get a security review and use `shlex.quote` plus an explicit allow list.
 
-**Residual risk**: a future agent introducing a one off shell call without review. Mitigated by `bandit` and required code review.
+**Residual risk**: a future change introducing a one off shell call without review. Mitigated by `bandit` and required code review.
 
-**Owner**: Backend Developer, DevOps Engineer.
+**Owner**: backend, deployment.
 
 ### T3. Template / server side template injection
 
@@ -85,12 +85,12 @@ G. **Reputation**: the project is linked from a resume. Visible compromise (defa
 **Controls**:
 
 * No Jinja2 or other server side templating in the backend. `application/json` only. Documented in `docs/architecture.md`.
-* React rendering relies on JSX escaping. Direct DOM injection via the React raw HTML injection prop (the one whose name starts with "dangerously") is banned without explicit Security Engineer review and a DOMPurify pass.
+* React rendering relies on JSX escaping. Direct DOM injection via the React raw HTML injection prop (the one whose name starts with "dangerously") is banned without an explicit security review and a DOMPurify pass.
 * `semgrep` ruleset `p/react` flags any use of that prop.
 
 **Residual risk**: low.
 
-**Owner**: Backend Developer, Frontend Developer.
+**Owner**: backend, frontend.
 
 ### T4. Cross site scripting (XSS)
 
@@ -104,9 +104,9 @@ G. **Reputation**: the project is linked from a resume. Visible compromise (defa
 * Inputs validated server side via Pydantic (Phase 2 onward), not just on the client. Ticker symbols are restricted to `^[A-Z0-9.-]{1,10}$` (Phase 8).
 * Outputs from `yfinance` (company names) are treated as untrusted text and rendered through React's escaping path; no rich HTML rendering of third party content.
 
-**Residual risk**: a future agent introducing a third party widget with inline script. The CSP would block it; surface that as a PR objection.
+**Residual risk**: a future change introducing a third party widget with inline script. The CSP would block it; surface that as a PR objection.
 
-**Owner**: Frontend Developer, Security Engineer.
+**Owner**: frontend, security review.
 
 ### T5. Cross site request forgery (CSRF)
 
@@ -120,7 +120,7 @@ G. **Reputation**: the project is linked from a resume. Visible compromise (defa
 
 **Residual risk**: a malicious site can still call the backend's writes from a server side context (no browser involved). This is equivalent to anyone being able to call the API directly, which is the intentional v1 posture (see no auth section). Rate limiting bounds the abuse.
 
-**Owner**: Backend Developer, Security Engineer.
+**Owner**: backend, security review.
 
 ### T6. Server side request forgery (SSRF), focused on yfinance (Phase 8)
 
@@ -134,21 +134,21 @@ G. **Reputation**: the project is linked from a resume. Visible compromise (defa
 * Ticker symbol input strictly validated: `^[A-Z0-9.-]{1,10}$`. No URL, no path traversal, no Unicode look alikes.
 * Response shape validated with a Pydantic model before being returned to the client; unknown fields are dropped (no `extra = "allow"`).
 * Responses cached server side (Redis or in process LRU, decision deferred to Phase 8) to limit egress and to absorb upstream rate limits.
-* If yfinance ever requires changes that pull from an arbitrary user supplied URL, that change requires Security Engineer review.
+* If yfinance ever requires changes that pull from an arbitrary user supplied URL, that change requires a security review.
 
-**Residual risk**: yfinance internally hits Yahoo endpoints we do not control. Compromise of Yahoo could feed bogus prices to the user. Mitigated only by sanity checks on numeric ranges (Risk Reviewer's domain).
+**Residual risk**: yfinance internally hits Yahoo endpoints we do not control. Compromise of Yahoo could feed bogus prices to the user. Mitigated only by sanity checks on numeric ranges (a correctness concern).
 
-**Phase 10 v1 implementation notes** (Performance Engineer review, 2026-05-03):
+**Phase 10 v1 implementation notes** (performance review, 2026-05-03):
 
-* The `/api/backtest` endpoint hits yfinance on every cache miss. The Performance Engineer recommended adding `@limiter.limit("10/minute")` per route on top of the global slowapi default of 60/minute per IP. The recommendation is **deferred to Phase 11 production hardening** because the existing slowapi setup creates the `Limiter` inside `build_app()` per call (so each test gets a fresh limiter with deterministic in-memory storage), which conflicts with the module-level `@limiter.limit(...)` decorator pattern slowapi expects for per-route limits. Implementing Fix B cleanly requires a refactor of the limiter ownership model; that refactor lands in Phase 11 alongside per-route limits for `/api/tickers/{symbol}` and `/api/heatmap`. The risk is bounded in the meantime by: (a) the existing 60/minute global per IP cap, (b) the historical service's 1 day TTL + 32 entry LRU cache which absorbs repeated requests on the same `(symbol, start, end)` key, (c) the historical service's 10 second hard timeout per upstream call, and (d) the engine's 1300 date cap which limits the response payload size. Documented as accepted residual risk for v1.
+* The `/api/backtest` endpoint hits yfinance on every cache miss. The performance review recommended adding `@limiter.limit("10/minute")` per route on top of the global slowapi default of 60/minute per IP. The recommendation is **deferred to Phase 11 production hardening** because the existing slowapi setup creates the `Limiter` inside `build_app()` per call (so each test gets a fresh limiter with deterministic in-memory storage), which conflicts with the module-level `@limiter.limit(...)` decorator pattern slowapi expects for per-route limits. Implementing Fix B cleanly requires a refactor of the limiter ownership model; that refactor lands in Phase 11 alongside per-route limits for `/api/tickers/{symbol}` and `/api/heatmap`. The risk is bounded in the meantime by: (a) the existing 60/minute global per IP cap, (b) the historical service's 1 day TTL + 32 entry LRU cache which absorbs repeated requests on the same `(symbol, start, end)` key, (c) the historical service's 10 second hard timeout per upstream call, and (d) the engine's 1300 date cap which limits the response payload size. Documented as accepted residual risk for v1.
 
-**Phase 8 v1 implementation notes** (Security Engineer review, 2026-05-03):
+**Phase 8 v1 implementation notes** (a security review, 2026-05-03):
 
 * The 1 MB response size cap is **not** enforced in the v1 implementation. yfinance buffers the entire payload internally and we never see the raw bytes. Accepted residual risk for v1: yfinance only hits hard coded Yahoo URLs; Yahoo's quoteSummary and chart payloads are single digit KB; the worst case is a memory pressure issue, not an exfiltration path. Concrete remediation if revisited: pass a custom `requests.Session` whose `send` reads the body in chunks with a hard byte ceiling, then `yf.Ticker(symbol, session=...)`.
 * The 5 second hard timeout uses `concurrent.futures.future.result(timeout=...)`, which surfaces 504 to the client but does not actually cancel the worker thread (Python threads cannot be interrupted while blocked in C extensions or socket reads). The `ticker-lookup` ThreadPoolExecutor has 4 workers; under sustained Yahoo slowness the pool can fill with zombie workers and subsequent lookups block. Accepted residual risk for v1: the slowapi 60/minute per IP global limit bounds the abuse, and the cache absorbs the common case. Concrete remediation if observability later shows stalling: bake a per request `timeout=` into the requests Session passed to yfinance so the worker thread unblocks at the socket level.
-* The "no outbound redirects to private address ranges" control is **not** enforced. yfinance is hard coded to Yahoo URLs and we never pass it a user URL, so the original SSRF attack surface this control addressed does not exist in v1. Accepted residual risk: a Yahoo redirect to `169.254.169.254` is implausible. Any future change that accepts a URL parameter (instead of a ticker symbol) is a Security Engineer review trigger; see the Phase 8 entry in `agents/08-security-engineer.md`.
+* The "no outbound redirects to private address ranges" control is **not** enforced. yfinance is hard coded to Yahoo URLs and we never pass it a user URL, so the original SSRF attack surface this control addressed does not exist in v1. Accepted residual risk: a Yahoo redirect to `169.254.169.254` is implausible. Any future change that accepts a URL parameter (instead of a ticker symbol) is a security review trigger.
 
-**Owner**: Backend Developer, Security Engineer.
+**Owner**: backend, security review.
 
 ### T7. Broken access control
 
@@ -158,11 +158,11 @@ G. **Reputation**: the project is linked from a resume. Visible compromise (defa
 
 * In v1 there are no per user resources, so the access control model is simple: every endpoint is public. There is no IDOR surface because there are no user owned objects.
 * The history endpoint (Phase 6) is global; any caller sees every saved calculation. This is intentional; see "Accepted residual risks".
-* Admin or maintenance routes (e.g., a hypothetical "delete all history") are not exposed by the public API. If they are ever added, they require an out of band auth (e.g., a signed request with a shared secret known only to Mustafa) and Security Engineer sign off.
+* Admin or maintenance routes (e.g., a hypothetical "delete all history") are not exposed by the public API. If they are ever added, they require an out of band auth (e.g., a signed request with a shared secret known only to Mustafa) and a security sign off.
 
 **Residual risk**: covered explicitly under "no end user auth in v1" below.
 
-**Owner**: Backend Developer, Security Engineer.
+**Owner**: backend, security review.
 
 ### T8. Sensitive data exposure (secrets, DSNs, tokens)
 
@@ -176,12 +176,12 @@ G. **Reputation**: the project is linked from a resume. Visible compromise (defa
 * `DATABASE_URL` is the only credentialed secret in v1. Compromise of `DATABASE_URL` requires immediate rotation (Neon dashboard, regenerate password, update Render env, redeploy).
 * Backend logs scrub the DSN before printing. Logging configuration uses a redaction filter at the formatter level; tested in Phase 2.
 * Sentry DSN, if used, is treated as low sensitivity (it allows event submission only, not read access), but is still kept in env vars rather than committed.
-* `VITE_*` environment variables are public by design (they are baked into the JS bundle). No secret is ever placed in a `VITE_*` var. Documented in `docs/security/secrets.md` and enforced by the Frontend Developer's review.
+* `VITE_*` environment variables are public by design (they are baked into the JS bundle). No secret is ever placed in a `VITE_*` var. Documented in `docs/security/secrets.md` and enforced at review.
 * Browser local storage and session storage are not used to store anything sensitive. The History feature persists server side, not client side.
 
 **Residual risk**: compromise of Render's or Cloudflare's dashboard via Mustafa's account. Mitigated by MFA on those accounts (Phase 11 hardening checklist).
 
-**Owner**: Security Engineer, DevOps Engineer.
+**Owner**: security review, deployment.
 
 ### T9. Insecure deserialization
 
@@ -192,11 +192,11 @@ G. **Reputation**: the project is linked from a resume. Visible compromise (defa
 * All API input is JSON parsed by FastAPI's Starlette and validated by Pydantic. No Python `pickle` use. No `yaml.load` (only `yaml.safe_load` if YAML is ever used). No `eval`. No `exec`.
 * `bandit` rules covering unsafe deserialization (`B301`, `B306`, `B321`, `B411`, etc.) run on every PR.
 * `yfinance` returns deserialized objects which the backend re serializes through Pydantic before returning them to the client; raw library objects are not passed through the API surface.
-* Any future feature that needs to deserialize binary data (e.g., uploaded CSV for a custom strategy) requires Security Engineer review and a separate threat model entry.
+* Any future feature that needs to deserialize binary data (e.g., uploaded CSV for a custom strategy) requires a security review and a separate threat model entry.
 
 **Residual risk**: low.
 
-**Owner**: Backend Developer, Security Engineer.
+**Owner**: backend, security review.
 
 ### T10. Components with known vulnerabilities (supply chain)
 
@@ -204,17 +204,17 @@ G. **Reputation**: the project is linked from a resume. Visible compromise (defa
 
 **Controls**:
 
-* Dependabot enabled for `pip` (the `backend/pyproject.toml` and `backend/uv.lock`) and for `pnpm` (the `frontend/package.json` and `frontend/pnpm-lock.yaml`). Configured via `.github/dependabot.yml` (DevOps Engineer wires this in Phase 0).
+* Dependabot enabled for `pip` (the `backend/pyproject.toml` and `backend/uv.lock`) and for `pnpm` (the `frontend/package.json` and `frontend/pnpm-lock.yaml`). Configured via `.github/dependabot.yml` (wired in Phase 0).
 * `pip-audit` runs against the locked Python deps in CI on every PR and on a weekly schedule.
 * `pnpm audit --audit-level=high` runs in CI on every PR.
 * CodeQL enabled for both Python and JavaScript/TypeScript on the GitHub repo. CodeQL findings of severity high or critical block merge.
 * Lock files (`uv.lock`, `pnpm-lock.yaml`) are committed; CI installs from the lock file only, never from a free version range.
-* Any new direct dependency requires a one line justification in the PR description (the Code Reviewer enforces this informally).
+* Any new direct dependency requires a one line justification in the PR description (enforced informally at review).
 * Production deploy uses a pinned Python image (e.g., `python:3.12-slim` at a digest, set in the Render service config in Phase 11) and a pinned Node version in `package.json` `engines`.
 
-**Residual risk**: zero day in a transitive dep before Dependabot files an alert. Mitigated by minimizing the transitive surface (avoid heavy deps when a small one will do; `simplify` skill at Code Reviewer time).
+**Residual risk**: zero day in a transitive dep before Dependabot files an alert. Mitigated by minimizing the transitive surface (avoid heavy deps when a small one will do; a simplification pass at review time).
 
-**Owner**: DevOps Engineer, Security Engineer.
+**Owner**: deployment, security review.
 
 ### T11. Insufficient logging and monitoring
 
@@ -222,16 +222,16 @@ G. **Reputation**: the project is linked from a resume. Visible compromise (defa
 
 **Controls**:
 
-* Structured JSON logging with request ID, latency, status code, and route on every backend response (Observability Engineer, Phase 2).
+* Structured JSON logging with request ID, latency, status code, and route on every backend response (Phase 2).
 * Auth failures (none in v1, but if added later) log at WARN with the route and IP, never the credential.
-* 4xx and 5xx responses are tracked separately. A spike in 4xx (suggesting probing) is observable; the Observability Engineer wires the alert in Phase 11.
+* 4xx and 5xx responses are tracked separately. A spike in 4xx (suggesting probing) is observable; the alert is wired in Phase 11.
 * Sentry (if adopted) captures unhandled exceptions with stack traces. Stack traces are never shown to the user; they go only to Sentry.
 * Logs do not contain the DSN, ticker query strings beyond the validated symbol, or any value flagged sensitive. Tested in Phase 2.
 * Cloudflare access logs (free tier) provide a second source of truth for incoming traffic.
 
 **Residual risk**: free tier log retention is short (Render: about 7 days). Acceptable for a pet project; documented.
 
-**Owner**: Observability Engineer, Security Engineer.
+**Owner**: observability, security review.
 
 ### T12. Denial of service / abuse
 
@@ -239,7 +239,7 @@ G. **Reputation**: the project is linked from a resume. Visible compromise (defa
 
 **Controls**:
 
-* Rate limiting at the application layer with `slowapi` or equivalent. Suggested defaults (Project Manager to confirm at Phase 2 sign off): 60 requests per minute per IP for cheap endpoints (`/health`, pricing, Greeks); 10 per minute for heat map; 2 per minute for backtest. Burst allowance: 5 over the steady rate.
+* Rate limiting at the application layer with `slowapi` or equivalent. Suggested defaults (confirmed at Phase 2 sign off): 60 requests per minute per IP for cheap endpoints (`/health`, pricing, Greeks); 10 per minute for heat map; 2 per minute for backtest. Burst allowance: 5 over the steady rate.
 * Cloudflare WAF in front of the frontend (free tier) absorbs the majority of bot traffic before it reaches Render.
 * Backend max request body size: 32 KB (way more than any legitimate input needs; protects against accidental large payloads).
 * Heat map and backtest endpoints have explicit input bounds: heat map grid capped at 21 by 21 cells; backtest date range capped at 5 years; ticker symbol length capped at 10. Pydantic models reject oversized inputs with HTTP 422.
@@ -248,7 +248,7 @@ G. **Reputation**: the project is linked from a resume. Visible compromise (defa
 
 **Residual risk**: a determined attacker can still saturate the free tier. Acceptable for v1; if it becomes a real problem, move to a paid tier and tighten rate limits.
 
-**Owner**: Backend Developer, DevOps Engineer, Security Engineer.
+**Owner**: backend, deployment, security review.
 
 ### T13. Security headers / TLS posture
 
@@ -267,7 +267,7 @@ G. **Reputation**: the project is linked from a resume. Visible compromise (defa
 
 **Residual risk**: low.
 
-**Owner**: Frontend Developer, Backend Developer, DevOps Engineer.
+**Owner**: frontend, backend, deployment.
 
 ### T14. Build and deploy integrity
 
@@ -276,14 +276,14 @@ G. **Reputation**: the project is linked from a resume. Visible compromise (defa
 **Controls**:
 
 * Branch protection on `main`: required PR review (1 reviewer), required CI green, required signed commits where feasible (the user has the choice of GPG, SSH signing, or sigstore; the project will use the user's preferred method).
-* GitHub Actions workflows pinned to commit SHAs, not floating tags. The DevOps Engineer enforces this.
+* GitHub Actions workflows pinned to commit SHAs, not floating tags. This is enforced at review.
 * `permissions:` block in every workflow file is set to least privilege. The default `contents: read` only; jobs that need to write set the specific scope.
 * OIDC tokens preferred over long lived deploy tokens where the platform supports it (Cloudflare Pages and Render both auto deploy on push, so explicit deploy tokens may not be needed; reassess at Phase 11).
 * Forks cannot trigger workflows that have access to repository secrets.
 
 **Residual risk**: compromise of GitHub itself. Out of scope.
 
-**Owner**: DevOps Engineer, Security Engineer.
+**Owner**: deployment, security review.
 
 ### T15. Local developer environment
 
@@ -292,13 +292,13 @@ G. **Reputation**: the project is linked from a resume. Visible compromise (defa
 **Controls**:
 
 * `.env` and `.env.local` gitignored.
-* `pre-commit` hook (DevOps Engineer wires this in Phase 0) runs `gitleaks` locally so a leak is caught before push.
+* `pre-commit` hook (wired in Phase 0) runs `gitleaks` locally so a leak is caught before push.
 * Mustafa's GitHub account has 2FA on (verify in Phase 0).
 * Mustafa's Render and Cloudflare accounts have 2FA on (verify in Phase 11).
 
 **Residual risk**: workstation compromise. Out of scope for the project; addressed at the OS level.
 
-**Owner**: User (Mustafa), Security Engineer (advisory).
+**Owner**: User (Mustafa), security review (advisory).
 
 ## Accepted residual risks
 
@@ -361,7 +361,7 @@ There is no on call rotation, no PagerDuty, no incident commander.
 
 ## Phase 0 user actions
 
-The user (Mustafa) must perform these GitHub click ops by hand. They cannot be done by an agent because they require an authenticated browser session. Do these once before Phase 1 begins.
+The user (Mustafa) must perform these GitHub click ops by hand. They require an authenticated browser session, so they cannot be automated. Do these once before Phase 1 begins.
 
 ### Branch protection on `main`
 
@@ -388,8 +388,8 @@ The user (Mustafa) must perform these GitHub click ops by hand. They cannot be d
 2. Under **Dependabot**:
    * Enable **Dependabot alerts**.
    * Enable **Dependabot security updates**.
-   * Enable **Dependabot version updates**. This requires a `.github/dependabot.yml` file in the repo; the DevOps Engineer agent writes that file in Phase 0. Once the file is committed, the toggle takes effect.
-3. After the DevOps Engineer commits `.github/dependabot.yml`, return to this page and confirm Dependabot has indexed both the `backend/` (pip via `uv.lock`) and `frontend/` (pnpm via `pnpm-lock.yaml`) ecosystems.
+   * Enable **Dependabot version updates**. This requires a `.github/dependabot.yml` file in the repo; that file is written in Phase 0. Once the file is committed, the toggle takes effect.
+3. After `.github/dependabot.yml` is committed, return to this page and confirm Dependabot has indexed both the `backend/` (pip via `uv.lock`) and `frontend/` (pnpm via `pnpm-lock.yaml`) ecosystems.
 
 ### CodeQL for Python and JavaScript/TypeScript
 
@@ -412,14 +412,14 @@ The user (Mustafa) must perform these GitHub click ops by hand. They cannot be d
 
 ### Verification
 
-After all of the above, the Security Engineer agent (in a future session) verifies:
+After all of the above, a security review verifies:
 
 * A test PR with a known dummy secret is rejected by push protection.
 * A test PR with a deliberately vulnerable dependency triggers a Dependabot alert.
 * A test PR with an obvious SQL injection pattern in Python triggers either CodeQL or `bandit` (CodeQL preferred; either is acceptable for v1).
 * The merge button on the test PR is disabled until all required checks pass.
 
-If any of these verifications fail, the Security Engineer agent reopens this section and investigates before signing off Phase 0.
+If any of these verifications fail, reopen this section and investigate before signing off Phase 0.
 
 ## Phase 12 addendum: authentication and per user history
 

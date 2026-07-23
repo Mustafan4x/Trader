@@ -31,4 +31,4 @@ A fourth question was whether to auto fill `q` from yfinance's `dividendYield` w
 * The Pricing screen now has six inputs and the Greeks panel has six rows, pushing harder against the deferred "Pricing screen fits without scrolling" entry in the maintainer's private notes but not addressing it.
 * The put call parity identity used in tests and reviews becomes `C - P = S * exp(-q * T) - K * exp(-r * T)` (reduces to the original identity when `q = 0`).
 * Adding discrete dividends later remains possible: a separate `discrete_dividends: list[(date, amount)]` field could be added without breaking the existing API surface.
-* The Risk and Financial Correctness Reviewer signed off this change per `SPEC.md` coordination rule 5.
+* The change was reviewed for sign and unit correctness against `../risk/conventions.md` before it merged.

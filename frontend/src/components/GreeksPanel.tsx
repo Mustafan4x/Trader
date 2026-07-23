@@ -1,8 +1,7 @@
 /**
  * Greeks display panel: six tiles for delta, gamma, theta, vega, rho, psi
- * for either the call or the put. Anatomy mirrors the canonical
- * reference at ``docs/design/claude-design-output.html`` lines 1330 to
- * 1350: each tile carries a glyph (Greek letter, italic serif), a
+ * for either the call or the put. Anatomy follows the tile spec in
+ * ``docs/design/wireframes.md``: each tile carries a glyph (Greek letter, italic serif), a
  * value (Newsreader, tabular), a name (italic serif body sm), and a
  * 3 px left accent border that cycles through six accents.
  *

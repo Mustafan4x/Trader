@@ -18,7 +18,7 @@ If `pnpm` is missing, run `corepack enable --install-directory ~/.local/bin` and
 ## Repository layout (Phase 0 baseline)
 
 ```
-/home/mustafa/src/vega/
+vega/
   backend/            FastAPI service (uv project)
     app/              Application package (main.py with /health endpoint)
     tests/            Pytest tests
@@ -36,7 +36,7 @@ If `pnpm` is missing, run `corepack enable --install-directory ~/.local/bin` and
     tailwind.config.ts  Theme.extend block from the design manifest
     vite.config.ts    Vite plus Tailwind plus Vitest config
   docs/
-    design/claude-design-output.html  Visual ground truth
+    design/tokens.md  Oxblood token reference
     devops.md         This file
   .github/workflows/ci.yml  Pull request gate
   .pre-commit-config.yaml   Local hook config
@@ -87,11 +87,11 @@ pnpm tsc
 pnpm test --run
 ```
 
-The Tailwind tokens resolve to CSS variables defined in `src/styles/tokens.css`. Both files are kept in sync with `docs/design/claude-design-output.html`. When a token changes, edit all three.
+The Tailwind tokens resolve to CSS variables defined in `src/styles/tokens.css`. Both files are kept in sync with the token reference in `docs/design/tokens.md`. When a token changes, edit all three.
 
 ## Pre commit hooks
 
-Hooks are managed by the `pre-commit` framework. Configuration lives in `/home/mustafa/src/vega/.pre-commit-config.yaml` and includes:
+Hooks are managed by the `pre-commit` framework. Configuration lives in `.pre-commit-config.yaml` at the repository root and includes:
 
 * `ruff` (Python lint plus format) on `backend/`.
 * `prettier` on frontend source files.
@@ -139,7 +139,7 @@ Both write a lock file (`uv.lock` and `pnpm-lock.yaml`) that must be committed.
 
 ## Deployment (placeholder for Phase 11)
 
-Cloudflare Pages for the frontend, Render for the backend, Neon for Postgres. The detailed deployment steps land in `/home/mustafa/src/vega/docs/setup-guide.md` and `render.yaml` during Phase 11. For now this section is a stub.
+Cloudflare Pages for the frontend, Render for the backend, Neon for Postgres. The detailed deployment steps land in `docs/setup-guide.md` and `render.yaml` during Phase 11. For now this section is a stub.
 
 ## Troubleshooting
 

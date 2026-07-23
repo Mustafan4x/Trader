@@ -1,12 +1,11 @@
 /*
- * Component styles ported from
- *   /home/mustafa/src/vega/docs/design/claude-design-output.html
- * (the canonical Oxblood theme reference). Selectors match the
- * data-component and data-element names in the HTML so the design
- * file remains useful as a source of truth and a debugging tool.
+ * Component styles for the Oxblood theme. Selectors match the
+ * data-component and data-element names recorded in
+ * docs/design/wireframes.md, so that document stays a usable map of
+ * the implementation.
  *
  * If you change a token, edit src/styles/tokens.css; if you change
- * component anatomy, edit both this file and the HTML reference.
+ * component anatomy, update this file and the wireframes document.
  */
 
 /* ══ Base ═════════════════════════════════════════════════════════════════ */

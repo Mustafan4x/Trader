@@ -2,7 +2,7 @@
 
 ## Scope
 
-This document fixes the mathematical model and the numerical conventions used by the project's pricing core. It is the canonical reference for any agent working on `app.pricing.black_scholes` and any downstream module that consumes its outputs (Greeks, heat map, P&L, persistence, backtest).
+This document fixes the mathematical model and the numerical conventions used by the project's pricing core. It is the canonical reference for anyone working on `app.pricing.black_scholes` and any downstream module that consumes its outputs (Greeks, heat map, P&L, persistence, backtest).
 
 The model implemented in v1 is the standard Black Scholes formula for European call and put options on a non dividend paying underlying. Dividend yield is not modeled in v1; the deferred extension plan is tracked privately.
 

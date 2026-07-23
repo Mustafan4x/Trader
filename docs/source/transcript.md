@@ -9,7 +9,7 @@ This file is the source material for SPEC.md. It is the transcript of a YouTube 
 * **Coverage**: this transcript covers content from approximately the 1:40 mark to the end of the video
 * **Provided by**: Mustafa, on 2026-05-02
 
-## Key points (TL;DR for future Claude sessions)
+## Key points (TL;DR)
 
 The speaker outlines an incremental build path that levels up the project at each step. Read this if you only need the gist; read the full transcript below for nuance.
 
@@ -81,4 +81,4 @@ The SPEC.md goes beyond what the transcript describes. The video stops at databa
 * Backtesting on historical data.
 * Production deployment.
 
-These are project decisions made between Mustafa and Claude during the brainstorming phase, not from the source video.
+These are project decisions made while scoping the build, not from the source video.

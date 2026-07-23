@@ -1,9 +1,9 @@
 # Per phase security hardening checklist
 
-Owner: Security Engineer agent.
+Owner: security review.
 Last updated: 2026-05-02 (Phase 0).
 
-This checklist is the gate the Security Engineer applies at every phase boundary. A phase does not close without every box ticked or an explicit accepted residual risk noted in `docs/security/threat-model.md`. The Project Manager must see the Security Engineer's sign off before opening the next phase.
+This checklist is the gate applied at every phase boundary. A phase does not close without every box ticked or an explicit accepted residual risk noted in `docs/security/threat-model.md`. A phase does not open until the prior phase's sign off is recorded.
 
 The check items are written as imperatives. Each item lives under one phase even when the underlying control is reaffirmed every subsequent phase; later phases pick up the cumulative state from earlier phases.
 
@@ -13,14 +13,14 @@ Repo level controls; nothing is deployed yet.
 
 * [ ] Branch protection on `main` configured: PR review required, CI green required, signed commits required, linear history required, force push blocked. (User click op; see `threat-model.md` "Phase 0 user actions".)
 * [ ] Dependabot alerts, security updates, and version updates enabled at the GitHub repo level. (User click op.)
-* [ ] `.github/dependabot.yml` committed with entries for `pip` (the `backend/` ecosystem) and `pnpm` (the `frontend/` ecosystem) plus `github-actions`. (DevOps Engineer.)
+* [ ] `.github/dependabot.yml` committed with entries for `pip` (the `backend/` ecosystem) and `pnpm` (the `frontend/` ecosystem) plus `github-actions`.
 * [ ] CodeQL enabled for both Python and JavaScript/TypeScript. (User click op.)
 * [ ] Secret scanning enabled with push protection. (User click op.)
-* [ ] `gitleaks` configured as a CI check on every PR. Workflow file under `.github/workflows/`. (DevOps Engineer.)
-* [ ] `bandit` configured as a CI check on every PR for any Python under `backend/`. (DevOps Engineer.)
-* [ ] `semgrep` configured as a CI check with at minimum `p/owasp-top-ten`, `p/python`, `p/react`, `p/sqlalchemy`. (DevOps Engineer.)
-* [ ] `.gitignore` blocks `.env`, `.env.*`, `*.pem`, `*.key`, `*.pfx`, `id_rsa*`, and any other private credential file pattern. (DevOps Engineer.)
-* [ ] `pre-commit` config installed locally with `gitleaks` and `ruff` (for Python) and `eslint` (for TS once Phase 0 scaffolds the frontend). (DevOps Engineer.)
+* [ ] `gitleaks` configured as a CI check on every PR. Workflow file under `.github/workflows/`.
+* [ ] `bandit` configured as a CI check on every PR for any Python under `backend/`.
+* [ ] `semgrep` configured as a CI check with at minimum `p/owasp-top-ten`, `p/python`, `p/react`, `p/sqlalchemy`.
+* [ ] `.gitignore` blocks `.env`, `.env.*`, `*.pem`, `*.key`, `*.pfx`, `id_rsa*`, and any other private credential file pattern.
+* [ ] `pre-commit` config installed locally with `gitleaks` and `ruff` (for Python) and `eslint` (for TS once Phase 0 scaffolds the frontend).
 * [ ] Threat model published at `docs/security/threat-model.md`.
 * [ ] Secrets table published at `docs/security/secrets.md`.
 * [ ] User has 2FA enabled on GitHub. (User self check.)
@@ -34,13 +34,13 @@ Pure module; no network surface.
 * [ ] No use of `eval`, `exec`, or any binary deserialization in the module.
 * [ ] No file system reads or writes from the pricing module (it is a pure function).
 * [ ] `bandit` clean on the module.
-* [ ] Test inputs that trigger numeric edge cases (T equals 0, sigma equals 0, deep ITM, deep OTM) are part of the test suite (Quant Validator owned, Security Engineer reviews to ensure they do not crash or leak via stack traces).
+* [ ] Test inputs that trigger numeric edge cases (T equals 0, sigma equals 0, deep ITM, deep OTM) are part of the test suite (reviewed to ensure they do not crash or leak via stack traces).
 
 ## Phase 2: FastAPI backend
 
 The first network surface. This is the largest single security review of the build.
 
-* [ ] Pydantic models defined for every endpoint request and response. No model uses `extra = "allow"`. (Backend Developer.)
+* [ ] Pydantic models defined for every endpoint request and response. No model uses `extra = "allow"`.
 * [ ] Input bounds set: numeric ranges sane (e.g., volatility in (0, 5), time to expiry in (0, 50), price > 0). Reject out of range with HTTP 422.
 * [ ] Maximum request body size enforced (32 KB).
 * [ ] CORS allow list set to the exact deployed frontend origin once known. For local dev, allow `http://localhost:5173` only. Wildcards are banned. `allow_credentials=False`.
@@ -50,7 +50,7 @@ The first network surface. This is the largest single security review of the bui
 * [ ] Structured JSON logging includes request ID, route, status code, latency. Does not include request body or any user input that could carry credentials.
 * [ ] No DSN in any log line. Verified with a unit test that exercises a connection failure path and asserts on the log content.
 * [ ] `/health` endpoint returns 200 with no leaked info (no version, no uptime that could fingerprint the host beyond what the platform already exposes).
-* [ ] OpenAPI docs at `/docs` and `/redoc` either disabled in production or behind a flag the Security Engineer reviews.
+* [ ] OpenAPI docs at `/docs` and `/redoc` either disabled in production or behind a reviewed flag.
 * [ ] `bandit` clean. `semgrep` clean. `pip-audit` clean.
 * [ ] Contract tests in QA's suite verify the rate limit returns 429 once exceeded.
 
@@ -75,7 +75,7 @@ Mostly an extension of Phase 3 plus a vectorized backend endpoint.
 
 * [ ] Heat map endpoint enforces grid bounds: rows and columns capped at 21 each. Larger requests are rejected with HTTP 422.
 * [ ] Heat map endpoint payload size capped on the response side too: a 21 by 21 grid of doubles is well under 32 KB; document and assert the upper bound.
-* [ ] No new third party charting library introduced without Security Engineer review (Canvas / SVG inline is fine; Recharts and Plotly are also fine but require a dependency review).
+* [ ] No new third party charting library introduced without a security review (Canvas / SVG inline is fine; Recharts and Plotly are also fine but require a dependency review).
 * [ ] If a charting library is added: `pnpm audit` clean, the library has been published for at least 6 months with no public CVEs.
 
 ## Phase 5: P&L heat map
@@ -83,7 +83,7 @@ Mostly an extension of Phase 3 plus a vectorized backend endpoint.
 No new surface; reuses Phase 4 endpoint with extra fields.
 
 * [ ] Purchase price fields validated server side (non negative, finite, within an order of magnitude of the asset price).
-* [ ] No change to the sign convention of P&L without Risk Reviewer plus Security Engineer joint sign off (a sign flip is a correctness issue, but a publicly visible one would be a reputational hit, which is in the security threat model).
+* [ ] No change to the sign convention of P&L without a joint correctness and security sign off (a sign flip is a correctness issue, but a publicly visible one would be a reputational hit, which is in the security threat model).
 
 ## Phase 6: Persistence
 
@@ -94,7 +94,7 @@ The first stateful phase. Database security takes over.
 * [ ] Migrations are reversible. Alembic `downgrade` works on the staging DB.
 * [ ] `DATABASE_URL` lives only in Render env vars and the local `.env`. `gitleaks` would catch a committed DSN; verified by adding a synthetic DSN to a branch and confirming `gitleaks` flags it (then deleting the branch).
 * [ ] Neon connection encrypts at rest and in transit (default; documented in `secrets.md`).
-* [ ] No PII column added without Security Engineer review. The schema currently has no PII columns.
+* [ ] No PII column added without a security review. The schema currently has no PII columns.
 * [ ] Indexes designed by the DBA do not leak data through their names (e.g., no `idx_user_email`).
 * [ ] Persistence write endpoint has its own rate limit (suggest 30 per minute per IP) on top of the global limit, since each call writes up to 441 rows.
 * [ ] History read endpoint paginates. Maximum page size 100. No "fetch all" path.
@@ -120,7 +120,7 @@ The first egress point. This is the second largest security review of the build.
 * [ ] `yfinance` is pinned to a specific version in `uv.lock`. Updates go through Dependabot review.
 * [ ] Response shape from the cache is validated through a Pydantic model before reaching the API client. Unknown fields are dropped.
 * [ ] If `yfinance` raises, the error is logged server side and the client receives a generic 502 plus a hint to retry; no upstream stack trace leaks.
-* [ ] If the upstream returns a non finite or negative price, the backend rejects it with a 502 and logs a metric (Risk Reviewer's domain too).
+* [ ] If the upstream returns a non finite or negative price, the backend rejects it with a 502 and logs a metric (a correctness concern too).
 * [ ] Ticker autocomplete does not perform a fan out to many endpoints; it queries one upstream per keystroke at most, debounced 300 ms client side.
 
 ## Phase 9: Multiple pricing models

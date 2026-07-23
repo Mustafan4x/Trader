@@ -1,6 +1,6 @@
 # Finance conventions for the Vega project
 
-This document is the canonical reference for the financial conventions used throughout the Vega pricing service. Every agent that touches pricing math, P&L, or the user facing input form must follow these conventions exactly. Disagreements are resolved by the Risk Reviewer in coordination with the Quant Domain Validator before code lands.
+This document is the canonical reference for the financial conventions used throughout the Vega pricing service. Every change that touches pricing math, P&L, or the user facing input form must follow these conventions exactly. Disagreements are resolved against this document before code lands.
 
 The conventions here track the textbook Black Scholes model on a stock with optional continuous dividend yield. They are deliberately conservative and standard so that hand calculations from any options textbook reproduce the service's outputs to two decimal places.
 
@@ -71,7 +71,7 @@ Edge cases for T = 0 are tested explicitly. See `docs/risk/sanity-cases.md` for 
 
 ## UI input units (Phase 3 anticipates this)
 
-The React form will collect volatility and rate as **percent values** because that is what users type and what every options textbook displays. The Frontend Developer is responsible for the conversion to decimal before the API call.
+The React form will collect volatility and rate as **percent values** because that is what users type and what every options textbook displays. The frontend is responsible for the conversion to decimal before the API call.
 
 | UI field | UI display | UI value | Conversion before POST | Backend field |
 |---|---|---|---|---|
@@ -105,7 +105,7 @@ Heat map color convention (anticipates Phase 5):
 * Negative P&L is colored on the red side of the scale.
 * The mid color (zero P&L) sits at the breakeven point. The breakeven for a long call is the strike plus the call purchase price; for a long put, the strike minus the put purchase price.
 
-A higher purchase price moves the breakeven outward (further from at the money) and therefore shifts the green region of the heat map outward. The Risk Reviewer hand checks this in Phase 5.
+A higher purchase price moves the breakeven outward (further from at the money) and therefore shifts the green region of the heat map outward. This is hand checked in Phase 5.
 
 ## Symbol reference
 
@@ -156,7 +156,7 @@ The backtest engine in `backend/app/backtest/engine.py` makes a small set of exp
 
 ## Cross references
 
-* `docs/math/black-scholes.md`: the Quant Domain Validator's formula and derivation reference. The conventions in this file must agree with that one.
+* `docs/math/black-scholes.md`: the formula and derivation reference. The conventions in this file must agree with that one.
 * `docs/risk/sanity-cases.md`: hand calculated reference cases that the pricing module must reproduce to two decimal places. Cases 6 and 7 cover model comparison and divergence regimes; Case 8 covers the backtest engine.
 * `docs/adr/0005-dividends-as-continuous-yield.md`: rationale for choosing the continuous yield approximation over discrete dividends, and for exposing `psi` as a first class Greek.
 * The maintainer's private notes (gitignored): where any further dividend related extensions (e.g., yfinance auto fill of `q`, discrete dividend modeling) are tracked.

@@ -18,13 +18,13 @@ Deploy the frontend to Cloudflare Pages. Treat Vercel as a documented alternativ
 
 **Positive**:
 
-* Cloudflare's WAF sits in front of the frontend by default. The Security Engineer's hardening checklist for Phase 11 leans on this.
+* Cloudflare's WAF sits in front of the frontend by default. The Phase 11 hardening checklist leans on this.
 * Free tier covers the project's traffic profile with margin to spare.
 * If the project later adopts edge logic (e.g., a small auth proxy, a request rewriter), Cloudflare Workers is one click away.
 
 **Negative**:
 
-* The DevOps Engineer's Phase 11 runbook is Cloudflare specific. Switching to Vercel later is straightforward but not free of work.
-* Cloudflare Pages preview deploys behave slightly differently from Vercel previews; the agents should not assume Vercel ergonomics carry over.
+* The Phase 11 deploy runbook is Cloudflare specific. Switching to Vercel later is straightforward but not free of work.
+* Cloudflare Pages preview deploys behave slightly differently from Vercel previews; Vercel ergonomics should not be assumed to carry over.
 
 The backend hosting choice (Render over Vercel) is a separate, harder decision: Vercel is unsuitable for long lived Python servers and is excluded for the backend regardless. That part is not a tradeoff, just a constraint, and is documented in [`../setup-guide.md`](../setup-guide.md) rather than as its own ADR.

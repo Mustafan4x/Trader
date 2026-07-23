@@ -1,9 +1,9 @@
 # Secrets reference
 
-Owner: Security Engineer agent.
+Owner: security review.
 Last updated: 2026-05-03 (Phase 11).
 
-This is the canonical list of every secret the project uses or will use, where each one lives, who has access to it, and the rotation policy. The Documentation Engineer keeps `docs/setup-guide.md` aligned with this file. **Never paste a real secret into this file or any other committed file.**
+This is the canonical list of every secret the project uses or will use, where each one lives, who has access to it, and the rotation policy. `docs/setup-guide.md` is kept aligned with this file. **Never paste a real secret into this file or any other committed file.**
 
 The table is grouped by phase to make it obvious when each new secret enters the project.
 
@@ -12,7 +12,7 @@ The table is grouped by phase to make it obvious when each new secret enters the
 * **Secret**: any value whose disclosure would let someone do something the project does not want them to do (for example, write to the production database, submit telemetry to a paid Sentry plan, or impersonate a deploy).
 * **Public config**: a value that is not secret but is environment specific (for example, the production backend URL the frontend talks to). Public config still belongs in env vars so the same code runs in dev, staging, and prod, but disclosure is harmless.
 
-The frontend uses Vite, which inlines any env var prefixed with `VITE_` into the client JavaScript bundle. **Anything inlined into the bundle is public.** Therefore no real secret may ever live in a `VITE_*` variable. This is enforced by review and by the Frontend Developer's discipline.
+The frontend uses Vite, which inlines any env var prefixed with `VITE_` into the client JavaScript bundle. **Anything inlined into the bundle is public.** Therefore no real secret may ever live in a `VITE_*` variable. This is enforced by review.
 
 ## Master table
 
@@ -21,7 +21,7 @@ The frontend uses Vite, which inlines any env var prefixed with `VITE_` into the
 | `VEGA_DATABASE_URL` | Secret (DSN with embedded password) | Render web service env var | `backend/.env` (gitignored) | Mustafa, Render runtime, Neon. | Phase 6. | Rotate immediately if the value appears in any log, screenshot, or repo. Otherwise rotate annually as hygiene. Procedure: regenerate the password in the Neon dashboard, update Render env, redeploy. |
 | `VEGA_CORS_ORIGINS` | Public config (comma separated origin list) | Render web service env var | `backend/.env` (dev only; defaults to `http://localhost:5173`) | Mustafa, Render runtime. | Phase 2; production fail loud added in Phase 11. | No rotation. Update when the frontend domain changes. Production refuses empty, wildcard, or HTTP origins at boot. |
 | `VITE_API_BASE_URL` | Public config (URL string) | Cloudflare Pages env var | `frontend/.env.local` (gitignored) | Public (baked into JS bundle). | Phase 3; production fail loud added in Phase 11. | No rotation; this is just the production backend URL. Production refuses empty or localhost values at first request. |
-| `SENTRY_DSN` | Low sensitivity (event submission only) | Render web service env var | `backend/.env` optional (gitignored) | Mustafa, Render runtime, Sentry. | Phase 2 or Phase 11 (Observability Engineer's call; not adopted in v1). | Rotate if the project changes Sentry organization or if abuse is suspected. Otherwise no scheduled rotation. |
+| `SENTRY_DSN` | Low sensitivity (event submission only) | Render web service env var | `backend/.env` optional (gitignored) | Mustafa, Render runtime, Sentry. | Phase 2 or Phase 11 (not adopted in v1). | Rotate if the project changes Sentry organization or if abuse is suspected. Otherwise no scheduled rotation. |
 | `VEGA_ENVIRONMENT` | Public config (string `"production"` / `"development"`) | Render web service env var | `backend/.env` | Public. | Phase 2. | No rotation. |
 | `VEGA_RATE_LIMIT_DEFAULT` | Public config (rate spec, e.g., `60/minute`) | Render web service env var | `backend/.env` (optional) | Public. | Phase 2. | No rotation. |
 | `GITHUB_TOKEN` | Ephemeral CI secret | GitHub Actions runtime (auto provisioned per job) | n/a | GitHub Actions per job. | Phase 0. | Auto rotated by GitHub on every workflow run. The project does not store or persist this token. |
@@ -59,8 +59,8 @@ Format: comma separated list of origins, each in `https://...` form. Example: `h
 Format: `https://<key>@<org>.ingest.sentry.io/<project>`.
 
 * Sentry DSNs are designed to be embeddable in client side code; they grant event submission only, not read access. They are still kept in env vars so the same code runs without Sentry in dev (when the DSN is unset).
-* If Sentry is wired into the frontend (the Observability Engineer may decide either way), the DSN goes into `VITE_SENTRY_DSN` and is treated as public. If only the backend uses Sentry, it stays in `SENTRY_DSN` (server side env).
-* Optional in v1; the Observability Engineer makes the call in Phase 2 or Phase 11.
+* If Sentry is wired into the frontend, the DSN goes into `VITE_SENTRY_DSN` and is treated as public. If only the backend uses Sentry, it stays in `SENTRY_DSN` (server side env).
+* Optional in v1; the call is made in Phase 2 or Phase 11.
 
 ### `VEGA_ENVIRONMENT`
 
@@ -89,7 +89,7 @@ If introduced:
 
 * Tokens are scoped to the minimum: a Cloudflare token scoped to "Edit Pages" on the specific project; a Render token scoped to the specific service; a Neon token scoped to the specific project.
 * Tokens are stored as GitHub Actions secrets (repository scope; not organization scope, since this is a personal repo).
-* Each token has a calendar reminder on Mustafa's calendar at 90 days for rotation. The Security Engineer agent's role is to remind the user one week before the deadline and to verify rotation took place.
+* Each token has a calendar reminder on Mustafa's calendar at 90 days for rotation. A reminder fires one week before the deadline, and rotation is verified once it is done.
 
 ## Where the secrets are NOT
 
@@ -99,7 +99,7 @@ Listing the absence of secrets is as important as listing where they are.
 * No secret is in any committed `.env`, `.env.local`, `.env.production`, or similar file. The committed `.env.example` files contain only placeholder values (e.g., `DATABASE_URL=postgresql://user:password@host:5432/dbname`).
 * No secret is hard coded into a Docker image. The `Dockerfile` references env vars at runtime; secrets are injected by Render's env var system at container start.
 * No secret is in Sentry breadcrumbs, error messages, or log lines. The logging redaction filter masks any value that matches a DSN regex.
-* No secret is in a screenshot or attachment in any `docs/` file. The Documentation Engineer reviews this on every doc PR.
+* No secret is in a screenshot or attachment in any `docs/` file. This is reviewed on every documentation PR.
 
 ## Incident response runbook: leaked secret
 
@@ -114,4 +114,4 @@ If a secret is found in a committed file, a public log, a screenshot, or anywher
 4. **File a postmortem** at `docs/security/incidents/YYYY-MM-DD-<short-name>.md` describing what leaked, how it leaked, the rotation timestamp, and the corrective action that prevents recurrence.
 5. **Update this file** with the lesson learned (for example, "added a regex for `<format>` to the `gitleaks` config").
 
-This runbook is owned by the Security Engineer agent and should be tabletop tested by Mustafa once before Phase 11 closes.
+This runbook should be tabletop tested once before Phase 11 closes.

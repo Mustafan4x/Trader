@@ -1,7 +1,6 @@
 /**
- * Inline SVG icons. Ports the canonical Icon component from
- * ``docs/design/claude-design-output.html`` so the React app does not
- * need a third party icon library. Stroke-based, monochrome, takes
+ * Inline SVG icons, so the React app does not need a third party
+ * icon library. Stroke-based, monochrome, takes
  * its color from ``currentColor``.
  */
 

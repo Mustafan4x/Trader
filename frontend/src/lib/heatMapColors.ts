@@ -14,7 +14,7 @@
  *
  * The exact RGB triples and stop counts are reproduced verbatim
  * from the canonical reference at
- * ``docs/design/claude-design-output.html`` (function ``HeatMap``).
+ * ``docs/design/wireframes.md``.
  */
 
 export type Rgb = readonly [number, number, number]

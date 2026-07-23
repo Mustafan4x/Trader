@@ -1,7 +1,7 @@
 /*
  * Design tokens for the Oxblood theme.
- * Source of truth: /home/mustafa/src/vega/docs/design/claude-design-output.html (`:root` block).
- * If a token changes, update this file AND the HTML reference, then update docs/design/tokens.md.
+ * This `:root` block is the source of truth for every token.
+ * If a token changes, update it here and then update docs/design/tokens.md.
  */
 :root {
   /* Color, primary (oxblood) */

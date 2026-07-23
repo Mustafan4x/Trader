@@ -18,12 +18,12 @@ Use Postgres as the production database, hosted on Neon's free tier. Use SQLite 
 
 * Neon's free tier is generous and includes branching, which makes preview environments cheap when we need them.
 * Postgres JSONB lets us store heat map matrices as a single column if the row layout (one cell per row) ever becomes a performance problem.
-* Switching between SQLite and Postgres through SQLAlchemy is well understood; the agents can develop locally on SQLite without touching Neon until Phase 11.
+* Switching between SQLite and Postgres through SQLAlchemy is well understood; local development runs on SQLite without touching Neon until Phase 11.
 * No vendor lock to a Postgres compatible managed offering; Neon, Supabase, Railway, Render's own Postgres, and Fly Postgres all speak standard wire protocol.
 
 **Negative**:
 
-* Some SQLite specific shortcuts (e.g., dynamic typing) will not work on Postgres, so the agents must develop with Postgres as the canonical target and use SQLite only for fast feedback.
-* Neon's free tier auto suspends idle databases, so the first request after an idle period takes a few seconds while the compute spins back up. The Backend Developer should handle this with reasonable timeouts.
+* Some SQLite specific shortcuts (e.g., dynamic typing) will not work on Postgres, so Postgres stays the canonical target and SQLite is used only for fast local feedback.
+* Neon's free tier auto suspends idle databases, so the first request after an idle period takes a few seconds while the compute spins back up. The backend handles this with reasonable timeouts.
 
 The tradeoffs are accepted; the cost ceiling for v1 is zero dollars per month, and Neon stays inside that envelope.

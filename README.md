@@ -8,7 +8,7 @@ A full stack Black Scholes options pricer built as a quant interview pet project
 
 ## Visual theme
 
-**Oxblood**: a dark surfaced theme with oxblood `#C03A3A` as primary, sea green `#34D399` as accent, IBM Plex Serif italic for display, Newsreader for numerics, Manrope for UI text, and JetBrains Mono for code. The canonical visual ground truth is a single self contained HTML file at [`docs/design/claude-design-output.html`](docs/design/claude-design-output.html); open it in any browser to see all five screens (Pricing, Heat Map, Model Comparison, Backtest, History) rendered live.
+**Oxblood**: a dark surfaced theme with oxblood `#C03A3A` as primary, sea green `#34D399` as accent, IBM Plex Serif italic for display, Newsreader for numerics, Manrope for UI text, and JetBrains Mono for code. Every token is defined once as a CSS variable in [`frontend/src/styles/tokens.css`](frontend/src/styles/tokens.css) and documented in [`docs/design/tokens.md`](docs/design/tokens.md), so reskinning the app is a single `:root` edit.
 
 ## Tech stack at a glance
 
@@ -24,21 +24,19 @@ A full stack Black Scholes options pricer built as a quant interview pet project
 
 ## Entry points
 
-* [`SPEC.md`](SPEC.md): the full project spec, agent roster, and 11 phase build plan.
-* [`CLAUDE.md`](CLAUDE.md): the auto loaded brief for any Claude Code session opened in this directory.
-* [`STATUS.md`](STATUS.md): single source of truth for which phase is in flight.
-* [`docs/plan.md`](docs/plan.md): per phase implementation plan written by the Project Manager.
+* [`SPEC.md`](SPEC.md): the full project spec and the 11 stage build plan.
 * [`docs/architecture.md`](docs/architecture.md): high level system diagram and component descriptions.
 * [`docs/setup-guide.md`](docs/setup-guide.md): user facing deployment guide (Cloudflare, Render, Neon, custom domain).
-* [`docs/design/claude-design-output.html`](docs/design/claude-design-output.html): canonical Oxblood visual reference, openable in a browser.
+* [`docs/devops.md`](docs/devops.md): local development walkthrough and the deploy runbook.
+* [`docs/design/tokens.md`](docs/design/tokens.md) and [`docs/design/wireframes.md`](docs/design/wireframes.md): the Oxblood tokens and the per screen layout and interaction model.
 * [`docs/adr/`](docs/adr/): Architecture Decision Records for the non obvious calls (React over Streamlit, Postgres over MySQL, Cloudflare Pages over Vercel, Oxblood as v1 visual).
 
 ## How to run locally
 
-The DevOps Engineer agent owns the full local development walkthrough at [`docs/devops.md`](docs/devops.md) (created in Phase 0 alongside this README). That file covers `uv sync` for the backend, `pnpm install` for the frontend, and the `docker compose up` flow once it lands.
+The full local development walkthrough lives at [`docs/devops.md`](docs/devops.md). It covers `uv sync` for the backend, `pnpm install` for the frontend, and the `docker compose up` flow once it lands.
 
 For the abridged version, see "Local development setup" in [`docs/setup-guide.md`](docs/setup-guide.md).
 
 ## Status
 
-v1 is unauthenticated by design (every visitor sees the same calculation history). The deferred per user history plan is captured in the maintainer's private notes for a future release.
+v1 is unauthenticated by design (every visitor sees the same calculation history). Per user history is deferred to a future release.

@@ -4,8 +4,8 @@
  * transparent CSS grid overlay (`[data-element="hitGrid"]`) provides
  * one focusable, screen reader friendly cell per data point.
  *
- * Component anatomy mirrors the canonical reference at
- * ``docs/design/claude-design-output.html`` function ``HeatMap``:
+ * Component anatomy follows the heat map section of
+ * ``docs/design/wireframes.md``:
  * card head, axis label, canvas frame, hit grid, x axis ticks. The
  * color stops live in ``src/lib/heatMapColors.ts`` so they stay
  * unit testable separately from this presentational layer.

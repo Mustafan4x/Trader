@@ -2,8 +2,8 @@
 
 Supports optional continuous dividend yield (q).
 
-Canonical math reference: ``/home/mustafa/src/vega/docs/math/black-scholes.md``.
-Project conventions reference: ``/home/mustafa/src/vega/docs/risk/conventions.md``.
+Canonical math reference: ``docs/math/black-scholes.md``.
+Project conventions reference: ``docs/risk/conventions.md``.
 
 Pure module: no I/O, no global state, no logging. Stdlib only.
 

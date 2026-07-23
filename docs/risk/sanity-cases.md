@@ -1,6 +1,6 @@
 # Black Scholes sanity cases
 
-This document is the canonical set of hand calculated reference values for the Vega pricing service. The Backend Developer's pricing module must reproduce every price below to within one cent (two decimal places) when given the same inputs. The Quant Domain Validator's test suite uses these values directly.
+This document is the canonical set of hand calculated reference values for the Vega pricing service. The pricing module must reproduce every price below to within one cent (two decimal places) when given the same inputs. The test suite uses these values directly.
 
 All cases assume the textbook Black Scholes model on a non dividend paying stock, with the conventions documented in `docs/risk/conventions.md`:
 * T in years.
@@ -236,7 +236,7 @@ Entry day 0 at S = 100, strategy = `long_call`, `sigma = 0.30` (matches the live
 
 The pricing module must reproduce all expected prices in this document (Cases 1 to 5b) to within one cent (absolute tolerance of 0.01). This tolerance accommodates rounding in the N(x) lookups and the small differences between table values and high precision floating point.
 
-The Quant Domain Validator's test suite asserts these tolerances explicitly. Any drift beyond one cent is treated as a regression and blocks the phase.
+The test suite asserts these tolerances explicitly. Any drift beyond one cent is treated as a regression and blocks the phase.
 
 For the Phase 9 multi model cases (6 and 7) the tolerance widens to the per model bounds in Case 6.
 
@@ -245,4 +245,4 @@ For the Phase 10 backtest cases (8a to 8d) the tolerance widens to within one ce
 ## Cross references
 
 * `docs/risk/conventions.md`: the conventions every input here is expressed in.
-* `docs/math/black-scholes.md`: the Quant Domain Validator's formula derivation. The values here must reconcile with that document.
+* `docs/math/black-scholes.md`: the formula derivation. The values here must reconcile with that document.

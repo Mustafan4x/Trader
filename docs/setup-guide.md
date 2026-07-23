@@ -27,7 +27,7 @@ All three services have free tiers that cover this project comfortably.
 
 ## Local development setup
 
-These steps run on your machine. They do not require any cloud accounts. The canonical local path is `/home/mustafa/src/vega/`.
+These steps run on your machine. They do not require any cloud accounts. The canonical local path is ``.
 
 ```bash
 # Tooling
@@ -35,13 +35,13 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 # Install Node.js LTS plus pnpm: https://pnpm.io/installation
 
 # Backend
-cd /home/mustafa/src/vega/backend
+cd backend
 uv sync
 uv run pytest                     # 295+ tests, all green
 uv run vega-serve               # http://localhost:8000
 
 # Frontend (in a second terminal)
-cd /home/mustafa/src/vega/frontend
+cd frontend
 pnpm install
 pnpm test --run                   # 114+ tests, all green
 pnpm dev                          # http://localhost:5173
@@ -52,7 +52,7 @@ Open `http://localhost:5173` in a browser; the Pricing screen should load and a 
 ### Local Postgres parity (optional)
 
 ```bash
-cd /home/mustafa/src/vega
+cd ~/src/vega
 docker compose up -d              # binds Postgres to 127.0.0.1:5432 only
 cd backend
 VEGA_DATABASE_URL=postgresql+psycopg://vega:vega@127.0.0.1:5432/vega \
@@ -165,7 +165,7 @@ Also enable Dependabot (Settings -> Code security -> Dependabot alerts) and Code
 
 ## Secrets reference
 
-Every secret used by the project is listed here. Never paste a real value into this file or any committed file. The Security Engineer agent owns this table and updates it whenever a new secret is introduced.
+Every secret used by the project is listed here. Never paste a real value into this file or any committed file. This table is updated whenever a new secret is introduced.
 
 | Name | Where it lives | What it is |
 |---|---|---|
