@@ -1,11 +1,9 @@
 """Reference value tests for Black Scholes call and put pricing.
 
-Authored by the Quant Domain Validator agent (Phase 1) before the Backend
-Developer implements ``app.pricing.black_scholes``. This is the canonical
-Test Driven Development red state: every test in this file will currently
-fail with ``ModuleNotFoundError`` because ``app.pricing.black_scholes`` does
-not yet exist. The Backend Developer's job in Phase 1 is to make these tests
-pass without modifying any of the assertions or tolerances.
+Written in Phase 1 ahead of ``app.pricing.black_scholes`` itself, so the
+suite starts from a red state: every test here failed with
+``ModuleNotFoundError`` until the module existed. The implementation had to
+make them pass without changing any assertion or tolerance.
 
 Conventions verified by these tests are documented in
 ``docs/math/black-scholes.md``:
