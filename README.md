@@ -14,8 +14,9 @@ A full stack Black Scholes options pricer built as a quant interview pet project
 
 | Layer | Choice |
 |---|---|
-| Frontend | React 18 plus Vite plus TypeScript plus Tailwind, hosted on Cloudflare Pages |
+| Frontend | React 19 plus Vite plus TypeScript plus Tailwind, hosted on Cloudflare Pages |
 | Backend | FastAPI on Python 3.12, hosted on Render |
+| Auth | Auth0 (OAuth sign in, RS256 JWT verification on the API) |
 | Database | Postgres on Neon (production), SQLite (local dev) |
 | Migrations | SQLAlchemy 2.x plus Alembic |
 | Package managers | `uv` (Python), `pnpm` (JS) |
@@ -33,10 +34,10 @@ A full stack Black Scholes options pricer built as a quant interview pet project
 
 ## How to run locally
 
-The full local development walkthrough lives at [`docs/devops.md`](docs/devops.md). It covers `uv sync` for the backend, `pnpm install` for the frontend, and the `docker compose up` flow once it lands.
+The full local development walkthrough lives at [`docs/devops.md`](docs/devops.md). It covers `uv sync` for the backend and `pnpm install` for the frontend; a `docker-compose.yml` at the repository root provides the local Postgres.
 
 For the abridged version, see "Local development setup" in [`docs/setup-guide.md`](docs/setup-guide.md).
 
 ## Status
 
-v1 is unauthenticated by design (every visitor sees the same calculation history). Per user history is deferred to a future release.
+Pricing, the Greeks, the heat maps, the method comparison, and the strategy backtester all work without an account. Signing in through Auth0 adds a private per user calculation history; every history query is scoped server side to the authenticated user, so one user can never read another's saved calculations. The API also enforces per route rate limits and ships strict transport and content security headers.
